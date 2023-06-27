@@ -11,19 +11,27 @@ class ProductController extends Controller
     {
         $query = Product::query();
 
-        if($request->get('deleted')) {
+        if ($request->get('deleted')) {
             $query->where('deleted', $request->get('deleted'));
         }
 
-        if($request->get('top')) {
+        if ($request->get('top')) {
             $query->where('top', $request->get('top'));
         }
 
-        if($request->get('sort_by')) {
-            $query->orderBy($request->get('sort_by'), $request->get('order', 'asc'));
+        if ($request->get('sort_by')) {
+            $sortField = $request->get('sort_by');
+            $sortOrder = $request->get('order', 'asc');
+            $query->orderBy($sortField, $sortOrder);
         }
 
-        return $query->get();
+        $perPage = $request->get('per_page', 10);
+        $page = $request->get('page', 1);
+
+        $products = $query->paginate($perPage, ['*'], 'page', $page);
+
+
+        return $query->paginate($perPage);
     }
 
     public function store(Request $request)
